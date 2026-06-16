@@ -17,4 +17,6 @@ void save_questions(void);
 void load_scores(void);
 void save_scores(void);
 
+int import_questions_from_txt(const char *filename);
+
 #endif

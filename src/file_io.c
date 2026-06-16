@@ -282,3 +282,101 @@ void save_scores(void) {
         fclose(fp);
     }
 }
+
+/* ============================================
+ * 函数: import_questions_from_txt
+ * 功能: 从文本文件导入题库，覆盖现有题库
+ * 参数: filename — 文本文件路径
+ * 格式: 编号|科目|题型|题目|选项A|选项B|选项C|选项D|答案|解析
+ * 返回: 成功导入的题目数量，-1=文件打开失败
+ * 注意: 导入后自动覆盖 questions.dat 文件
+ * ============================================ */
+int import_questions_from_txt(const char *filename) {
+    FILE *fp = fopen(filename, "r");  /* 以文本模式打开 */
+    if (!fp) {                          /* 文件不存在 */
+        printf("[错误] 无法打开题库文件: %s\n", filename);
+        return -1;
+    }
+
+    char line[1024];                    /* 行缓冲区 */
+    int count = 0;                      /* 成功导入计数 */
+    int line_no = 0;                    /* 行号（用于错误提示） */
+
+    /* 清空现有题库（覆盖导入） */
+    question_count = 0;
+
+    while (fgets(line, sizeof(line), fp)) {  /* 逐行读取 */
+        line_no++;
+        /* 去掉末尾换行符 */
+        line[strcspn(line, "\n")] = '\0';
+        /* 跳过空行和注释行 */
+        if (line[0] == '\0' || line[0] == '#') continue;
+
+        /* 检查容量 */
+        if (question_count >= MAX_QUESTIONS) {
+            printf("[警告] 题库已满，仅导入前 %d 题\n", count);
+            break;
+        }
+
+        /* 按 | 分隔符解析字段
+         * 格式: id|subject|type|content|optA|optB|optC|optD|answer|explanation
+         */
+        char *token = strtok(line, "|");
+        if (!token) continue;           /* 无有效数据 */
+
+        Question q;
+        memset(&q, 0, sizeof(q));
+
+        /* 字段1: 编号 */
+        q.id = atoi(token);
+        /* 字段2: 科目 */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        q.subject = atoi(token);
+        /* 字段3: 题型 */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        q.type = atoi(token);
+        /* 字段4: 题目内容 */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.content, token, sizeof(q.content) - 1);
+        /* 字段5: 选项A */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.options[0], token, sizeof(q.options[0]) - 1);
+        /* 字段6: 选项B */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.options[1], token, sizeof(q.options[1]) - 1);
+        /* 字段7: 选项C */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.options[2], token, sizeof(q.options[2]) - 1);
+        /* 字段8: 选项D */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.options[3], token, sizeof(q.options[3]) - 1);
+        /* 字段9: 答案 */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.answer, token, sizeof(q.answer) - 1);
+        /* 字段10: 解析 */
+        token = strtok(NULL, "|");
+        if (!token) continue;
+        strncpy(q.explanation, token, sizeof(q.explanation) - 1);
+
+        questions[question_count++] = q;  /* 追加到数组 */
+        count++;
+    }
+
+    fclose(fp);
+
+    if (count > 0) {
+        save_questions();               /* 自动保存到二进制文件 */
+        printf("[成功] 导入 %d 道题目，已覆盖原有题库\n", count);
+    } else {
+        printf("[警告] 未导入任何题目，请检查文件格式\n");
+    }
+    return count;
+}

@@ -178,12 +178,26 @@ static void admin_menu(void) {
         printf("  [1] 考生信息管理\n");   /* 进入 student_menu()：全权限 CRUD */
         printf("  [2] 预约管理\n");       /* 进入 appointment_menu()：全权限 */
         printf("  [3] 模拟考试\n");       /* 进入 exam_sim_menu()：可查看所有成绩 */
+        printf("  [4] 导入题库\n");       /* 从文本文件导入真实题库 */
         printf("  [0] 注销登录\n");       /* 退出到登录菜单 */
         choice = get_choice();
         switch (choice) {
             case 1: student_menu(); break;      /* 调用考生管理模块 */
             case 2: appointment_menu(); break;  /* 调用预约管理模块 */
             case 3: exam_sim_menu(); break;     /* 调用模拟考试模块 */
+            case 4:
+                /* 导入题库: 读取文本文件并覆盖现有题库 */
+                printf("\n[导入题库]\n");
+                printf("请输入题库文件路径（默认 data/questions.txt）：");
+                char path[256];
+                if (fgets(path, sizeof(path), stdin) && path[0] != '\n') {
+                    path[strcspn(path, "\n")] = '\0';
+                } else {
+                    strcpy(path, "data/questions.txt");
+                }
+                import_questions_from_txt(path);
+                pause_screen();
+                break;
             case 0:
                 /* 注销: 重置角色状态，返回登录菜单 */
                 current_role = 0;
