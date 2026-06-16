@@ -7,5 +7,6 @@ void list_students(void);
 void query_student(void);
 void modify_student(void);
 void delete_student(void);
+void my_info(void);
 
 #endif

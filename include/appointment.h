@@ -7,5 +7,6 @@ void list_appointments(void);
 void query_appointment(void);
 void cancel_appointment(void);
 void update_appointment(void);
+void my_appointments(void);
 
 #endif
