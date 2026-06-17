@@ -161,9 +161,11 @@ void query_student(void) {
            "ID", "身份证号", "姓名", "电话", "车型", "状态");
     print_line();
     /* 遍历考生数组，使用 strstr 进行模糊匹配 */
-    for (int i = 0; i < student_count; i++) {
+    for (int i = 0; i < student_count; i++) 
+    {
         if (strstr(students[i].id_card, keyword) ||  /* 身份证号包含关键词 */
-            strstr(students[i].name, keyword)) {      /* 或姓名包含关键词 */
+            strstr(students[i].name, keyword))       /* 或姓名包含关键词 */
+        {      
             printf("  %-4d %-18s %-10s %-12s %-8s %-10s\n",
                    students[i].id, students[i].id_card,
                    students[i].name, students[i].phone,
@@ -171,11 +173,11 @@ void query_student(void) {
             found++;
         }
     }
-    if (!found) {
+    if (!found) 
         printf("未找到匹配的考生。\n");
-    } else {
+    else 
         printf("\n共找到 %d 条记录。\n", found);
-    }
+    
     pause_screen();
 }
 
@@ -209,17 +211,23 @@ void modify_student(void) {
 
     /* 在数组中查找目标考生 */
     int idx = -1;                       /* 目标索引 */
-    for (int i = 0; i < student_count; i++) {
-        if (students[i].id == id) { idx = i; break; }
+    for (int i = 0; i < student_count; i++) 
+    {
+        if (students[i].id == id) 
+        {   idx = i; 
+            break; 
+        }
     }
-    if (idx == -1) {                    /* 未找到 */
+    if (idx == -1)                         /* 未找到 */
+    {                   
         printf("[错误] 未找到该考生！\n");
         pause_screen();
         return;
     }
 
     /* 二次权限校验（防止考生手动输入他人 ID） */
-    if (current_role == 2 && students[idx].id != current_user_id) {
+    if (current_role == 2 && students[idx].id != current_user_id) 
+    {
         printf("[错误] 您只能修改自己的信息！\n");
         pause_screen();
         return;
@@ -268,7 +276,8 @@ void modify_student(void) {
  * 删除策略: 确认对话框，防止误操作
  * ============================================ */
 void delete_student(void) {
-    if (student_count == 0) {           /* 空数据检查 */
+    if (student_count == 0)             /* 空数据检查 */
+    {           
         printf("\n暂无考生记录。\n");
         pause_screen();
         return;
@@ -282,10 +291,16 @@ void delete_student(void) {
 
     /* 查找目标考生索引 */
     int idx = -1;
-    for (int i = 0; i < student_count; i++) {
-        if (students[i].id == id) { idx = i; break; }
+    for (int i = 0; i < student_count; i++) 
+    {
+        if (students[i].id == id) 
+        {   
+            idx = i; 
+            break; 
+        }
     }
-    if (idx == -1) {                    /* 未找到 */
+    if (idx == -1)                       /* 未找到 */
+    {                   
         printf("[错误] 未找到该考生！\n");
         pause_screen();
         return;
@@ -297,7 +312,8 @@ void delete_student(void) {
     int confirm;
     scanf("%d", &confirm);
     while (getchar() != '\n');
-    if (confirm != 1) {                 /* 用户取消 */
+    if (confirm != 1)                    /* 用户取消 */
+    {                 
         printf("已取消删除。\n");
         pause_screen();
         return;
@@ -306,26 +322,33 @@ void delete_student(void) {
     /* 级联删除 1: 遍历 appointments 数组，从后往前删除关联记录
      * 从后往前遍历的原因: 删除后需前移后续元素，从后往前不会遗漏
      */
-    for (int i = appointment_count - 1; i >= 0; i--) {
-        if (appointments[i].student_id == id) {
+    for (int i = appointment_count - 1; i >= 0; i--) 
+    {
+        if (appointments[i].student_id == id) 
+        {
             /* 前移覆盖: 将 i 之后的所有元素前移一位 */
-            for (int j = i; j < appointment_count - 1; j++) {
+            for (int j = i; j < appointment_count - 1; j++) 
+            {
                 appointments[j] = appointments[j + 1];
             }
             appointment_count--;        /* 总数量减一 */
         }
     }
     /* 级联删除 2: 遍历 scores 数组，删除关联记录 */
-    for (int i = score_count - 1; i >= 0; i--) {
-        if (scores[i].student_id == id) {
-            for (int j = i; j < score_count - 1; j++) {
+    for (int i = score_count - 1; i >= 0; i--) 
+    {
+        if (scores[i].student_id == id) 
+        {
+            for (int j = i; j < score_count - 1; j++) 
+            {
                 scores[j] = scores[j + 1];
             }
             score_count--;
         }
     }
     /* 步骤 3: 删除考生本身，前移覆盖 */
-    for (int i = idx; i < student_count - 1; i++) {
+    for (int i = idx; i < student_count - 1; i++) 
+    {
         students[i] = students[i + 1];   /* 后一个元素覆盖当前 */
     }
     student_count--;                     /* 总数量减一 */
@@ -366,7 +389,8 @@ void my_info(void) {
     printf("\n  [1] 修改信息\n");
     printf("  [0] 返回\n");
     int choice = get_choice();
-    if (choice == 1) {
+    if (choice == 1) 
+    {
         modify_student();              /* 进入修改流程（已限制权限） */
     }
 }

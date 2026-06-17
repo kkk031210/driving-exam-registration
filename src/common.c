@@ -147,9 +147,10 @@ int validate_id_card(const char *id_card) {
  * 注意: 仅做格式校验，不做日期逻辑校验（如 2 月 30 日）。
  */
 int is_date_valid(const char *date) {
-    if (strlen(date) != 10) return 0;   /* 长度必须是 10: YYYY-MM-DD */
-    if (date[4] != '-' || date[7] != '-') return 0;  /* 分隔符位置校验 */
-    return 1;
+    if (strlen(date) != 10) return 0;        /* 长度必须是 10: YYYY-MM-DD */
+    if (date[4] != '-' || date[7] != '-')    /* 分隔符位置校验 */
+        return 1;
+    return 0; 
 }
 
 /*
@@ -158,10 +159,14 @@ int is_date_valid(const char *date) {
  * 合法时段: 08:30-10:30, 13:00-15:00, 15:30-17:30
  * 返回: 1=合法, 0=非法
  */
-int is_time_slot_valid(const char *slot) {
-    if (strcmp(slot, "08:30-10:30") == 0) return 1;
-    if (strcmp(slot, "13:00-15:00") == 0) return 1;
-    if (strcmp(slot, "15:30-17:30") == 0) return 1;
+int is_time_slot_valid(const char *slot) 
+{
+    if (strcmp(slot, "08:30-10:30") == 0) 
+        return 1;
+    if (strcmp(slot, "13:00-15:00") == 0) 
+        return 1;
+    if (strcmp(slot, "15:30-17:30") == 0) 
+        return 1;
     return 0;
 }
 

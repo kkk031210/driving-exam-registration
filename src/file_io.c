@@ -36,7 +36,8 @@
 void init_data(void) {
     /* ---------- 1. 初始化管理员账号 ---------- */
     FILE *fp = fopen(FILE_ADMINS, "rb");  /* 尝试以只读二进制模式打开 */
-    if (fp == NULL) {                       /* 文件不存在: 首次运行 */
+    if (fp == NULL)    /* 文件不存在: 首次运行 */
+    {                      
         /* 构造默认管理员结构体 */
         Admin admin = {1, "admin", "admin123"};
         /* 以只写二进制模式创建新文件 */
@@ -291,10 +292,13 @@ void save_scores(void) {
  * 返回: 成功导入的题目数量，-1=文件打开失败
  * 注意: 导入后自动覆盖 questions.dat 文件
  * ============================================ */
-int import_questions_from_txt(const char *filename) {
+int import_questions_from_txt(const char *filename) 
+{
     FILE *fp = fopen(filename, "r");  /* 以文本模式打开 */
-    if (!fp) {                          /* 文件不存在 */
-        printf("[错误] 无法打开题库文件: %s\n", filename);
+    if (!fp) 
+    {  
+          /* 文件不存在 */
+        perror("无法打开文件");
         return -1;
     }
 
@@ -305,12 +309,14 @@ int import_questions_from_txt(const char *filename) {
     /* 清空现有题库（覆盖导入） */
     question_count = 0;
 
-    while (fgets(line, sizeof(line), fp)) {  /* 逐行读取 */
+    while (fgets(line, sizeof(line), fp)) /* 逐行读取 */
+    {  
         line_no++;
         /* 去掉末尾换行符 */
         line[strcspn(line, "\n")] = '\0';
         /* 跳过空行和注释行 */
-        if (line[0] == '\0' || line[0] == '#') continue;
+        if (line[0] == '\0' || line[0] == '#') 
+            continue;
 
         /* 检查容量 */
         if (question_count >= MAX_QUESTIONS) {
@@ -322,7 +328,8 @@ int import_questions_from_txt(const char *filename) {
          * 格式: id|subject|type|content|optA|optB|optC|optD|answer|explanation
          */
         char *token = strtok(line, "|");
-        if (!token) continue;           /* 无有效数据 */
+        if (token == NULL)         /* 无有效数据 */
+            continue;          
 
         Question q;
         memset(&q, 0, sizeof(q));
@@ -331,39 +338,48 @@ int import_questions_from_txt(const char *filename) {
         q.id = atoi(token);
         /* 字段2: 科目 */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         q.subject = atoi(token);
         /* 字段3: 题型 */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         q.type = atoi(token);
         /* 字段4: 题目内容 */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.content, token, sizeof(q.content) - 1);
         /* 字段5: 选项A */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.options[0], token, sizeof(q.options[0]) - 1);
         /* 字段6: 选项B */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.options[1], token, sizeof(q.options[1]) - 1);
         /* 字段7: 选项C */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.options[2], token, sizeof(q.options[2]) - 1);
         /* 字段8: 选项D */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.options[3], token, sizeof(q.options[3]) - 1);
         /* 字段9: 答案 */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.answer, token, sizeof(q.answer) - 1);
         /* 字段10: 解析 */
         token = strtok(NULL, "|");
-        if (!token) continue;
+        if (token == NULL) 
+            continue;
         strncpy(q.explanation, token, sizeof(q.explanation) - 1);
 
         questions[question_count++] = q;  /* 追加到数组 */
@@ -372,11 +388,12 @@ int import_questions_from_txt(const char *filename) {
 
     fclose(fp);
 
-    if (count > 0) {
+    if (count > 0) 
+    {
         save_questions();               /* 自动保存到二进制文件 */
         printf("[成功] 导入 %d 道题目，已覆盖原有题库\n", count);
-    } else {
+    } else 
         printf("[警告] 未导入任何题目，请检查文件格式\n");
-    }
+    
     return count;
 }

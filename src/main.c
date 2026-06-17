@@ -27,7 +27,7 @@
  * ============================================ */
 
 Student students[MAX_SIZE];         /* 考生信息数组，最多 MAX_SIZE 条 */
-int student_count = 0;               /* 当前实际考生数量，也是数组下标边界 */
+int  student_count = 0;               /* 当前实际考生数量，也是数组下标边界 */
 
 Admin admins[MAX_SIZE];             /* 管理员账号数组 */
 int admin_count = 0;                 /* 当前管理员数量 */
@@ -118,7 +118,7 @@ static int admin_login(void) {
     get_password(password, sizeof(password));  /* 隐藏输入，显示 * 占位 */
 
     /* 遍历 admins 数组，查找匹配的用户名和密码 */
-    for (int i = 0; i < admin_count; i++) {
+    for (register int i = 0; i < admin_count; i++) {
         if (strcmp(admins[i].username, username) == 0 &&   /* 用户名匹配 */
             strcmp(admins[i].password, password) == 0) {   /* 密码匹配 */
             current_role = 1;                               /* 设置角色为管理员 */
@@ -149,7 +149,7 @@ static int student_login(void) {
     get_password(password, sizeof(password));  /* 隐藏密码输入 */
 
     /* 遍历 students 数组，查找匹配的身份证号和密码 */
-    for (int i = 0; i < student_count; i++) {
+    for (register int i = 0; i < student_count; i++) {
         if (strcmp(students[i].id_card, id_card) == 0 &&   /* 身份证号匹配 */
             strcmp(students[i].password, password) == 0) {   /* 密码匹配 */
             current_role = 2;                                 /* 设置角色为考生 */
@@ -182,19 +182,23 @@ static void admin_menu(void) {
         printf("  [0] 注销登录\n");       /* 退出到登录菜单 */
         choice = get_choice();
         switch (choice) {
-            case 1: student_menu(); break;      /* 调用考生管理模块 */
-            case 2: appointment_menu(); break;  /* 调用预约管理模块 */
-            case 3: exam_sim_menu(); break;     /* 调用模拟考试模块 */
+            case 1: student_menu();       /* 调用考生管理模块 */
+                    break;              
+            case 2: appointment_menu();   /* 调用预约管理模块 */
+                    break;  
+            case 3: exam_sim_menu();       /* 调用模拟考试模块 */
+                    break;     
             case 4:
                 /* 导入题库: 读取文本文件并覆盖现有题库 */
                 printf("\n[导入题库]\n");
                 printf("请输入题库文件路径（默认 data/questions.txt）：");
                 char path[256];
-                if (fgets(path, sizeof(path), stdin) && path[0] != '\n') {
+                if (fgets(path, sizeof(path), stdin) && path[0] != '\n') 
+                {
                     path[strcspn(path, "\n")] = '\0';
                 } else {
-                    strcpy(path, "data/questions.txt");
-                }
+                            strcpy(path, "data/questions.txt");
+                       }
                 import_questions_from_txt(path);
                 pause_screen();
                 break;
