@@ -60,8 +60,8 @@ typedef struct {
     int id;                 /* 预约单号 */
     int student_id;         /* 关联考生 ID */
     char subject[10];       /* 科目：科目一 / 二 / 三 / 四 */
-    char exam_date[11];     /* 预约日期，格式：YYYY-MM-DD */
-    char exam_time[10];     /* 预约时段：08:30-10:30 / 13:00-15:00 / 15:30-17:30 */
+    char exam_date[12];     /* 预约日期，格式：YYYY-MM-DD */
+    char exam_time[12];     /* 预约时段：08:30-10:30 / 13:00-15:00 / 15:30-17:30 */
     int venue_id;           /* 关联考试场地 ID */
     char status[10];        /* 状态：已预约（预留扩展） */
 } Appointment;

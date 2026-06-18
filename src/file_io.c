@@ -304,14 +304,12 @@ int import_questions_from_txt(const char *filename)
 
     char line[1024];                    /* 行缓冲区 */
     int count = 0;                      /* 成功导入计数 */
-    int line_no = 0;                    /* 行号（用于错误提示） */
 
     /* 清空现有题库（覆盖导入） */
     question_count = 0;
 
     while (fgets(line, sizeof(line), fp)) /* 逐行读取 */
     {  
-        line_no++;
         /* 去掉末尾换行符 */
         line[strcspn(line, "\n")] = '\0';
         /* 跳过空行和注释行 */
