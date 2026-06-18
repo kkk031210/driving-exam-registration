@@ -147,10 +147,18 @@ int validate_id_card(const char *id_card) {
  * 注意: 仅做格式校验，不做日期逻辑校验（如 2 月 30 日）。
  */
 int is_date_valid(const char *date) {
-    if (strlen(date) != 10) return 0;        /* 长度必须是 10: YYYY-MM-DD */
+    if (strlen(date) != 10)                  /* 长度必须是 10: YYYY-MM-DD */
+        return 0;       
     if (date[4] != '-' || date[7] != '-')    /* 分隔符位置校验 */
-        return 1;
-    return 0; 
+        return 0;
+    if()
+
+
+
+
+
+
+    return 1; 
 }
 
 /*
