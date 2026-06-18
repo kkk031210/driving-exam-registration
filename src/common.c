@@ -4,13 +4,13 @@
  * 包含：终端交互、密码输入、数据校验、时间获取等底层工具
  */
 
-#include <stdio.h>      /* 标准输入输出: printf, scanf, getchar, fflush */
-#include <stdlib.h>     /* 标准库: system, exit 等 */
-#include <string.h>     /* 字符串处理: strlen, strcmp, strcpy, strstr 等 */
-#include <time.h>       /* 时间处理: time, localtime, struct tm, time_t */
-#include <termios.h>    /* 终端控制: tcgetattr, tcsetattr, struct termios */
-#include <unistd.h>     /* 系统调用: STDIN_FILENO */
-#include "common.h"     /* 本模块的函数声明 */
+#include <stdio.h>   /* 标准输入输出: printf, scanf, getchar, fflush */
+#include <stdlib.h>  /* 标准库: system, exit 等 */
+#include <string.h>  /* 字符串处理: strlen, strcmp, strcpy, strstr 等 */
+#include <time.h>    /* 时间处理: time, localtime, struct tm, time_t */
+#include <termios.h> /* 终端控制: tcgetattr, tcsetattr, struct termios */
+#include <unistd.h>  /* 系统调用: STDIN_FILENO */
+#include "common.h"  /* 本模块的函数声明 */
 
 /*
  * 函数: getch
@@ -19,8 +19,9 @@
  *       读取字符后立即恢复原始终端设置，保证不干扰后续输入。
  * 注意: 这是 Linux 替代 Windows <conio.h> 中 getch() 的实现。
  */
-char getch(void) {
-    struct termios old, new;   /* old: 保存原始终端设置; new: 临时设置 */
+char getch(void)
+{
+    struct termios old, new; /* old: 保存原始终端设置; new: 临时设置 */
     char ch;
     tcgetattr(STDIN_FILENO, &old);          /* 获取当前终端属性 */
     new = old;                              /* 复制原始设置 */
@@ -37,7 +38,8 @@ char getch(void) {
  * 实现: 发送 ANSI 转义序列 \033[2J（清屏）\033[H（光标归位），然后 fflush 刷新输出缓冲区。
  * 注意: 在 Windows 下应使用 system("cls")，此处为 Linux 适配版。
  */
-void clear_screen(void) {
+void clear_screen(void)
+{
     printf("\033[2J\033[H");
     fflush(stdout);
 }
@@ -46,7 +48,8 @@ void clear_screen(void) {
  * 函数: print_line
  * 功能: 打印一条装饰分割线（双横线边框），用于美化菜单界面
  */
-void print_line(void) {
+void print_line(void)
+{
     printf("══════════════════════════════════\n");
 }
 
@@ -55,7 +58,8 @@ void print_line(void) {
  * 功能: 打印居中的标题（上下包裹分割线）
  * 参数: title — 标题字符串
  */
-void print_title(const char *title) {
+void print_title(const char *title)
+{
     print_line();
     printf("      %s\n", title);
     print_line();
@@ -67,7 +71,8 @@ void print_title(const char *title) {
  * 实现: 显示提示后调用 getchar() 阻塞，直到用户输入回车。
  * 注意: 调用前需确保输入缓冲区已清空（如 scanf 后用 while(getchar()!='\n')）。
  */
-void pause_screen(void) {
+void pause_screen(void)
+{
     printf("\n按 Enter 键继续...");
     getchar();
 }
@@ -79,11 +84,13 @@ void pause_screen(void) {
  *       避免残留影响后续输入。
  * 返回: 用户输入的整数选项
  */
-int get_choice(void) {
+int get_choice(void)
+{
     int choice;
     printf("\n请选择操作：");
-    scanf("%d", &choice);           /* 读取整数 */
-    while (getchar() != '\n');      /* 清空缓冲区残留字符，防止影响后续输入 */
+    scanf("%d", &choice); /* 读取整数 */
+    while (getchar() != '\n')
+        ; /* 清空缓冲区残留字符，防止影响后续输入 */
     return choice;
 }
 
@@ -99,23 +106,30 @@ int get_choice(void) {
  *   4. 其他字符 → 写入缓冲区并打印 * 占位符
  *   5. 最后补 \0 作为字符串结尾
  */
-void get_password(char *buf, int max_len) {
-    int i = 0;          /* 当前已输入字符数 */
+void get_password(char *buf, int max_len)
+{
+    int i = 0; /* 当前已输入字符数 */
     char ch;
-    while (1) {
-        ch = getch();   /* 读取一个无回显字符 */
-        if (ch == '\r' || ch == '\n') {     /* 回车结束输入 */
+    while (1)
+    {
+        ch = getch(); /* 读取一个无回显字符 */
+        if (ch == '\r' || ch == '\n')
+        { /* 回车结束输入 */
             break;
-        } else if ((ch == '\b' || ch == 127) && i > 0) {  /* 退格/删除，且至少输入了一个字符 */
-            i--;                           /* 缓冲区索引回退 */
-            printf("\b \b");               /* 光标左移、空格覆盖、光标再左移，视觉上擦除 * */
-        } else if (ch != '\b' && ch != 127 && i < max_len - 1) {  /* 非退格/删除，且未满 */
-            buf[i++] = ch;               /* 写入缓冲区 */
-            printf("*");                   /* 打印 * 占位符 */
+        }
+        else if ((ch == '\b' || ch == 127) && i > 0)
+        {                    /* 退格/删除，且至少输入了一个字符 */
+            i--;             /* 缓冲区索引回退 */
+            printf("\b \b"); /* 光标左移、空格覆盖、光标再左移，视觉上擦除 * */
+        }
+        else if (ch != '\b' && ch != 127 && i < max_len - 1)
+        {                  /* 非退格/删除，且未满 */
+            buf[i++] = ch; /* 写入缓冲区 */
+            printf("*");   /* 打印 * 占位符 */
         }
     }
-    buf[i] = '\0';      /* 字符串结束符 */
-    printf("\n");       /* 换行，光标移至下一行 */
+    buf[i] = '\0'; /* 字符串结束符 */
+    printf("\n");  /* 换行，光标移至下一行 */
 }
 
 /*
@@ -127,15 +141,20 @@ void get_password(char *buf, int max_len) {
  *   3. 第 18 位必须是数字或 'X'（最后一位校验码）
  * 返回: 1=格式合法, 0=格式非法
  */
-int validate_id_card(const char *id_card) {
-    int len = strlen(id_card);          /* 获取字符串长度 */
-    if (len != 18) return 0;            /* 长度校验 */
-    for (int i = 0; i < 17; i++) {      /* 前 17 位逐字符检查 */
-        if (id_card[i] < '0' || id_card[i] > '9') return 0;
+int validate_id_card(const char *id_card)
+{
+    int len = strlen(id_card); /* 获取字符串长度 */
+    if (len != 18)
+        return 0; /* 长度校验 */
+    for (int i = 0; i < 17; i++)
+    { /* 前 17 位逐字符检查 */
+        if (id_card[i] < '0' || id_card[i] > '9')
+            return 0;
     }
     /* 第 18 位: 数字或 X */
-    if (!((id_card[17] >= '0' && id_card[17] <= '9') || 
-          (id_card[17] >= 'X' && id_card[17] <= 'X'))) return 0;
+    if (!((id_card[17] >= '0' && id_card[17] <= '9') ||
+          (id_card[17] >= 'X' && id_card[17] <= 'X')))
+        return 0;
     return 1;
 }
 
@@ -146,19 +165,69 @@ int validate_id_card(const char *id_card) {
  * 返回: 1=格式合法, 0=格式非法
  * 注意: 仅做格式校验，不做日期逻辑校验（如 2 月 30 日）。
  */
-int is_date_valid(const char *date) {
-    if (strlen(date) != 10)                  /* 长度必须是 10: YYYY-MM-DD */
-        return 0;       
-    if (date[4] != '-' || date[7] != '-')    /* 分隔符位置校验 */
+int is_date_valid(const char *date)
+{
+    /* 格式检查 */
+    if (strlen(date) != 10)
         return 0;
-    if()
+    if (date[4] != '-' || date[7] != '-')
+        return 0;
+    /* 必须全为数字（除分隔符位置外） */
+    for (int i = 0; i < 10; i++)
+    {
+        if (i == 4 || i == 7)
+            continue;
+        if (date[i] < '0' || date[i] > '9')
+            return 0;
+    }
 
+    /* 解析年月日 */
+    int year = (date[0] - '0') * 1000 + (date[1] - '0') * 100 + (date[2] - '0') * 10 + (date[3] - '0');
+    int month = (date[5] - '0') * 10 + (date[6] - '0');
+    int day = (date[8] - '0') * 10 + (date[9] - '0');
 
+    /*
+    char buf[11];
+    strcpy(buf, date);                    // 复制输入字符串到临时缓冲区，strtok 会修改它 
+    char *y = strtok(buf, "-");
+    char *m = strtok(NULL, "-");
+    char *d = strtok(NULL, "-");
+    if (!y || !m || !d) 
+        return 0;
 
+    int year  = atoi(y);
+    int month = atoi(m);
+    int day   = atoi(d);
+    */
 
+    /* 月份范围 */
+    if (month < 1 || month > 12)
+        return 0;
+    /* 每月最大天数，2月暂设28 */
+    int max_day[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    /* 闰年修正：能被4整除且不被100整除，或能被400整除 */
+    int is_leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    if (is_leap && month == 2)
+        max_day[2] = 29;
 
+    if (day < 1 || day > max_day[month])
+        return 0;
 
-    return 1; 
+    /* 不能早于今天（预约只能用未来日期） */
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    int today_year = t->tm_year + 1900;
+    int today_month = t->tm_mon + 1;
+    int today_day = t->tm_mday;
+
+    if (year < today_year)
+        return 0;
+    if (year == today_year && month < today_month)
+        return 0;
+    if (year == today_year && month == today_month && day < today_day)
+        return 0;
+
+    return 1;
 }
 
 /*
@@ -167,13 +236,13 @@ int is_date_valid(const char *date) {
  * 合法时段: 08:30-10:30, 13:00-15:00, 15:30-17:30
  * 返回: 1=合法, 0=非法
  */
-int is_time_slot_valid(const char *slot) 
+int is_time_slot_valid(const char *slot)
 {
-    if (strcmp(slot, "08:30-10:30") == 0) 
+    if (strcmp(slot, "08:30-10:30") == 0)
         return 1;
-    if (strcmp(slot, "13:00-15:00") == 0) 
+    if (strcmp(slot, "13:00-15:00") == 0)
         return 1;
-    if (strcmp(slot, "15:30-17:30") == 0) 
+    if (strcmp(slot, "15:30-17:30") == 0)
         return 1;
     return 0;
 }
@@ -184,14 +253,15 @@ int is_time_slot_valid(const char *slot)
  * 参数: buf — 输出缓冲区; len — 缓冲区长度
  * 实现: 调用 time() 获取秒级时间戳 → localtime() 转换为本地时间结构 → snprintf 格式化字符串
  */
-void get_current_date(char *buf, int len) {
-    time_t now = time(NULL);                /* 获取当前时间戳（自 1970-01-01 起的秒数） */
-    struct tm *t = localtime(&now);          /* 转换为本地时间结构体（含年月日时分秒） */
+void get_current_date(char *buf, int len)
+{
+    time_t now = time(NULL);        /* 获取当前时间戳（自 1970-01-01 起的秒数） */
+    struct tm *t = localtime(&now); /* 转换为本地时间结构体（含年月日时分秒） */
     snprintf(buf, len, "%04d-%02d-%02d %02d:%02d:%02d",
-             t->tm_year + 1900,             /* tm_year 是自 1900 起的偏移 */
-             t->tm_mon + 1,                  /* tm_mon 范围 0-11，需 +1 */
-             t->tm_mday,                     /* 日: 1-31 */
-             t->tm_hour,                     /* 时: 0-23 */
-             t->tm_min,                      /* 分: 0-59 */
-             t->tm_sec);                     /* 秒: 0-59 */
+             t->tm_year + 1900, /* tm_year 是自 1900 起的偏移 */
+             t->tm_mon + 1,     /* tm_mon 范围 0-11，需 +1 */
+             t->tm_mday,        /* 日: 1-31 */
+             t->tm_hour,        /* 时: 0-23 */
+             t->tm_min,         /* 分: 0-59 */
+             t->tm_sec);        /* 秒: 0-59 */
 }

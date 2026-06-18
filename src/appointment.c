@@ -12,6 +12,14 @@
 #include "common.h"         /* 公共工具函数 */
 #include "appointment.h"    /* 本模块的函数声明 */
 
+/* 根据场地ID获取场地名称，找不到返回"未知" */
+static const char *get_venue_name(int venue_id) {
+    for (int i = 0; i < venue_count; i++) {
+        if (venues[i].id == venue_id) return venues[i].name;
+    }
+    return "未知";
+}
+
 /* ============================================
  * 函数: appointment_menu
  * 功能: 预约管理的菜单界面（管理员入口，考生通过 my_appointments 查看）
@@ -146,8 +154,7 @@ void book_appointment(void)
     printf("  [4] 科目四\n");
     int sub_choice;
     scanf("%d", &sub_choice);
-    while (getchar() != '\n')
-        ;
+    while (getchar() != '\n');
     switch (sub_choice)
     { /* 将数字映射为字符串 */
     case 1:
@@ -171,8 +178,7 @@ void book_appointment(void)
     /* 步骤6: 输入日期并校验格式 */
     printf("请输入预约日期（YYYY-MM-DD）：");
     scanf("%10s", a.exam_date);
-    while (getchar() != '\n')
-        ;
+    while (getchar() != '\n');
     if (!is_date_valid(a.exam_date))
     { /* 调用 common.c 中的日期校验 */
         printf("[错误] 日期格式不正确！\n");
@@ -187,8 +193,7 @@ void book_appointment(void)
     printf("  [3] 15:30-17:30\n");
     int slot_choice;
     scanf("%d", &slot_choice);
-    while (getchar() != '\n')
-        ;
+    while (getchar() != '\n');
     switch (slot_choice)
     {
     case 1:
@@ -215,8 +220,7 @@ void book_appointment(void)
     }
     printf("请输入场地ID：");
     scanf("%d", &a.venue_id);
-    while (getchar() != '\n')
-        ;
+    while (getchar() != '\n');
 
     int venue_idx = -1; /* 场地在数组中的索引 */
     for (int i = 0; i < venue_count; i++)
@@ -282,18 +286,19 @@ void list_appointments(void)
     }
     int has_data = 0; /* 标记是否有数据可显示（考生权限下可能全被过滤） */
     /* 打印表头 */
-    printf("  %-4s %-6s %-10s %-12s %-12s %-10s %-10s\n",
-           "单号", "考生ID", "科目", "日期", "时段", "场地ID", "状态");
+    printf("  %-4s %-6s %-10s %-12s %-12s %-12s %-10s\n",
+           "单号", "考生ID", "科目", "日期", "时段", "场地", "状态");
     print_line();
     for (int i = 0; i < appointment_count; i++)
     {
         /* 权限过滤: 考生只能看自己的预约 */
         if (current_role == 2 && appointments[i].student_id != current_user_id)
             continue;
-        printf("  %-4d %-6d %-10s %-12s %-12s %-10d %-10s\n",
+        printf("  %-4d %-6d %-10s %-12s %-12s %-12s %-10s\n",
                appointments[i].id, appointments[i].student_id,
                appointments[i].subject, appointments[i].exam_date,
-               appointments[i].exam_time, appointments[i].venue_id,
+               appointments[i].exam_time,
+               get_venue_name(appointments[i].venue_id),
                appointments[i].status);
         has_data = 1;
     }
@@ -344,9 +349,10 @@ void query_appointment(void)
                 /* 显示匹配记录 */
                 printf("  单号: %d, 考生ID: %d, 科目: %s\n",
                        appointments[i].id, appointments[i].student_id, appointments[i].subject);
-                printf("  日期: %s, 时段: %s, 场地ID: %d, 状态: %s\n",
+                printf("  日期: %s, 时段: %s, 场地: %s, 状态: %s\n",
                        appointments[i].exam_date, appointments[i].exam_time,
-                       appointments[i].venue_id, appointments[i].status);
+                       get_venue_name(appointments[i].venue_id),
+                       appointments[i].status);
                 found = 1;
                 break; /* 单号唯一，找到即退出 */
             }
@@ -393,10 +399,10 @@ void query_appointment(void)
         {
             if (appointments[i].student_id == sid)
             {
-                printf("  单号: %d, 科目: %s, 日期: %s, 时段: %s, 场地: %d, 状态: %s\n",
+                printf("  单号: %d, 科目: %s, 日期: %s, 时段: %s, 场地: %s, 状态: %s\n",
                        appointments[i].id, appointments[i].subject,
                        appointments[i].exam_date, appointments[i].exam_time,
-                       appointments[i].venue_id, appointments[i].status);
+                       get_venue_name(appointments[i].venue_id), appointments[i].status);
                 found++;
             }
         }
@@ -530,9 +536,10 @@ void update_appointment(void)
 
     /* 显示当前预约信息，供参考 */
     printf("当前预约：\n");
-    printf("  科目: %s, 日期: %s, 时段: %s, 场地ID: %d\n",
+    printf("  科目: %s, 日期: %s, 时段: %s, 场地: %s\n",
            appointments[idx].subject, appointments[idx].exam_date,
-           appointments[idx].exam_time, appointments[idx].venue_id);
+           appointments[idx].exam_time,
+           get_venue_name(appointments[idx].venue_id));
 
     /* 选择修改项目 */
     printf("\n请选择修改项目：\n");
@@ -670,17 +677,18 @@ void my_appointments(void)
     }
     int found = 0; /* 匹配计数器 */
     /* 打印表头 */
-    printf("  %-4s %-10s %-12s %-12s %-10s %-10s\n",
-           "单号", "科目", "日期", "时段", "场地ID", "状态");
+    printf("  %-4s %-10s %-12s %-12s %-12s %-10s\n",
+           "单号", "科目", "日期", "时段", "场地", "状态");
     print_line();
     for (int i = 0; i < appointment_count; i++)
     {
         if (appointments[i].student_id == current_user_id)  /* 仅显示自己的 */
-        { 
-            printf("  %-4d %-10s %-12s %-12s %-10d %-10s\n",
+        {
+            printf("  %-4d %-10s %-12s %-12s %-12s %-10s\n",
                    appointments[i].id, appointments[i].subject,
                    appointments[i].exam_date, appointments[i].exam_time,
-                   appointments[i].venue_id, appointments[i].status);
+                   get_venue_name(appointments[i].venue_id),
+                   appointments[i].status);
             found++;
         }
     }
