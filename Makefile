@@ -1,21 +1,29 @@
 CC = gcc
-CFLAGS = -Wall -g -Iinclude
-SRC = src/main.c src/common.c src/student.c src/appointment.c src/exam_sim.c src/file_io.c
-OBJ = $(SRC:.c=.o)
-TARGET = driving_exam
+CFLAGS = -Wall -Wextra -g -Iinclude
+# 后续增加第三方库时使用
+LDFLAGS =
+# valgrind --leak-check=full ./bin/driving_exam
 
-.PHONY: all clean run
+SRC_DIR = src
+OBJ_DIR = build
+BIN_DIR = bin
+TARGET = $(BIN_DIR)/driving_exam
+
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+
+.PHONY: all clean
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET)
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
-src/%.o: src/%.c include/*.h
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	rm -f src/*.o $(TARGET)
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-run: $(TARGET)
-	./$(TARGET)
+clean:
+	rm -rf $(OBJ_DIR) $(TARGET)
